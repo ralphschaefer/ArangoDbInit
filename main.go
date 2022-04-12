@@ -34,8 +34,12 @@ type DBDef struct {
 		Password string `yaml:",omitempty"`
 	} `yaml:",omitempty"`
 	Collections []struct {
-		Name  string   `yaml:",omitempty"`
-		Index []string `yaml:",omitempty,flow"`
+		Name      string   `yaml:",omitempty"`
+		Index     []string `yaml:",omitempty,flow"`
+		Documents []struct {
+			Key   string
+			Value string
+		}
 	} `yaml:",omitempty"`
 }
 
@@ -134,6 +138,21 @@ func iterateDbs(database DBDef, client driver.Client) {
 		if err != nil {
 			glog.Fatal(err)
 		}
+		c, err := dbcon.Collection(nil, col.Name)
+		for _, doc := range col.Documents {
+			d, err := dbconfig.NewDocument(doc.Key, doc.Value)
+			if err != nil {
+				glog.Fatal(err)
+			}
+			err = d.Create(c)
+			if err != nil {
+				glog.Fatal(err)
+			}
+		}
+		if err != nil {
+			glog.Fatal(err)
+		}
+
 	}
 }
 

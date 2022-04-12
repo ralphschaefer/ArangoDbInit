@@ -8,4 +8,4 @@ FROM busybox:uclibc
 WORKDIR /runtime
 RUN mkdir -p /config
 COPY --from=0 /build/arangoinit .
-CMD /runtime/arangoinit -config /config
+CMD /runtime/arangoinit -config /config/initarango.yaml
