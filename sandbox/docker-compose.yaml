@@ -15,7 +15,7 @@ services:
 
     init:
       container_name: arangoinit
-      image: arangoinit:0.1.0
+      image: arangoinit:0.2.0
       volumes:
         - ./config:/config
       environment:

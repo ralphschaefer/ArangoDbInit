@@ -11,6 +11,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"main/dbconfig"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -34,8 +35,11 @@ type DBDef struct {
 		Password string `yaml:",omitempty"`
 	} `yaml:",omitempty"`
 	Collections []struct {
-		Name      string   `yaml:",omitempty"`
-		Index     []string `yaml:",omitempty,flow"`
+		Name  string `yaml:",omitempty"`
+		Index []struct {
+			Field   string
+			Options []string `yaml:",omitempty,flow"`
+		}
 		Documents []struct {
 			Key   string
 			Value string
@@ -105,6 +109,16 @@ func init() {
 
 }
 
+func containsIgnoreCase(needle string, haystack []string) bool {
+	searchItem := strings.ToLower(needle)
+	for _, item := range haystack {
+		if searchItem == strings.ToLower(item) {
+			return true
+		}
+	}
+	return false
+}
+
 func iterateDbs(database DBDef, client driver.Client) {
 	if structs.HasZero(database) {
 		glog.Fatal(fmt.Sprintf("missing fields in config file for database '%s'", database.Name))
@@ -127,8 +141,12 @@ func iterateDbs(database DBDef, client driver.Client) {
 		glog.Info(fmt.Sprintf("check collection: '%s/%s'", database.Name, col.Name))
 		idx := make([]dbconfig.Index, len(col.Index))
 		for i, v := range col.Index {
-			idx[i].Field = v
-			idx[i].Name = fmt.Sprintf("Index_%s", v)
+			idx[i].Field = v.Field
+			idx[i].Name = fmt.Sprintf("Index_%s", v.Field)
+			idx[i].Username = fmt.Sprintf("IndexFor-%s", v.Field)
+			idx[i].Unique = containsIgnoreCase("unique", v.Options)
+			idx[i].Sparse = containsIgnoreCase("sparse", v.Options)
+			idx[i].InBackground = containsIgnoreCase("inbackground", v.Options)
 		}
 		collection := dbconfig.Collection{
 			Name:  col.Name,

@@ -3,8 +3,12 @@ package dbconfig
 import "github.com/arangodb/go-driver"
 
 type Index struct {
-	Field string
-	Name  string
+	Field        string
+	Name         string
+	Username     string
+	Unique       bool
+	Sparse       bool
+	InBackground bool
 }
 
 type Collection struct {
@@ -18,7 +22,13 @@ func (idx *Index) Create(client driver.Collection) error {
 		return err
 	}
 	if !exists {
-		_, _, err := client.EnsurePersistentIndex(nil, []string{idx.Field}, nil)
+		_, _, err := client.EnsurePersistentIndex(nil, []string{idx.Field}, &driver.EnsurePersistentIndexOptions{
+			Unique:       idx.Unique,
+			Sparse:       idx.Sparse,
+			InBackground: idx.InBackground,
+			Name:         idx.Username,
+			Estimates:    nil,
+		})
 		if err != nil {
 			return err
 		}
