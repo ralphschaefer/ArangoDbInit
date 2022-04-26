@@ -5,12 +5,18 @@ databases:
       password: "pass"
     collections:
       - name: "users"
-        index: ["name"]
+        index:
+          - field: "name"
+            options: ["sparse"]
+          - field: "email"
+            options: ["unique"]
         documents:
           - key: "root"
             value: '{"name": "admin", "email": "admin@admin", "humanReadableName": "Dr. Hans Wurst"}'
           - key: "test"
             value: '{"name": "test", "email": "test@user", "humanReadableName": "Max Mustermann"}'
+          - key: "test2"
+            value: '{"name": "test", "email": "test2@user", "humanReadableName": "Max Mustermann"}'
       - name: "dddddd"
         index: []
   - name: "bbbb"

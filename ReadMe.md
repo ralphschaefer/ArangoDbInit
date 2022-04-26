@@ -32,12 +32,18 @@ databases:
       password: "pass"
     collections:
       - name: "users"
-        index: ["name"]
+        index:
+          - field: "name"
+            options: ["sparse"]
+          - field: "email"
+            options: ["unique"]
         documents:
           - key: "root"
             value: '{"name": "admin", "email": "admin@admin", "humanReadableName": "Dr. Hans Wurst"}'
           - key: "test"
             value: '{"name": "test", "email": "test@user", "humanReadableName": "Max Mustermann"}'
+          - key: "test2"
+            value: '{"name": "test", "email": "test2@user", "humanReadableName": "Max Mustermann"}'
       - name: "dddddd"
         index: []
   - name: "bbbb"
@@ -61,8 +67,15 @@ databases:
 
 #### collection item
 * name: name of collection
-* index: list of collections fields for witch an index is needed
+* index: list of _index items_
 * documents: initial list of documents for collection
+
+#### index item
+* field: name of collection field to be indexed
+* options: index options. Possible option values are: 
+    - Unique
+    - Sparse
+    - InBackground
 
 #### document item
 * key: document key
