@@ -1,5 +1,8 @@
+### 0.3.0
+* allow composite indexes
+
 ### 0.2.0
-* extend index defintion
+* extend index definition
 
 ### 0.1.0
 * initial version

@@ -1,4 +1,4 @@
-version = 0.2.0
+version = 0.3.0
 name = arangoinit
 local_tag = $(name):$(version)
 remote_tag = ralphschaefer/arangodb-cloudinit:$(version)

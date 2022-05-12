@@ -5,11 +5,12 @@ databases:
       password: "pass"
     collections:
       - name: "users"
+        compositeindex:
+          - fields: ["email", "name"]
+            options: ["unique"]
         index:
           - field: "name"
             options: ["sparse"]
-          - field: "email"
-            options: ["unique"]
         documents:
           - key: "root"
             value: '{"name": "admin", "email": "admin@admin", "humanReadableName": "Dr. Hans Wurst"}'
@@ -19,6 +20,7 @@ databases:
             value: '{"name": "test", "email": "test2@user", "humanReadableName": "Max Mustermann"}'
       - name: "dddddd"
         index: []
+        compositeindex: []
   - name: "bbbb"
     owner:
       name: "sdsdf"
