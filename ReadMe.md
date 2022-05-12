@@ -32,11 +32,12 @@ databases:
       password: "pass"
     collections:
       - name: "users"
+        compositeindex:
+          - fields: ["email", "name"]
+            options: ["unique"]        
         index:
           - field: "name"
             options: ["sparse"]
-          - field: "email"
-            options: ["unique"]
         documents:
           - key: "root"
             value: '{"name": "admin", "email": "admin@admin", "humanReadableName": "Dr. Hans Wurst"}'
@@ -68,10 +69,18 @@ databases:
 #### collection item
 * name: name of collection
 * index: list of _index items_
+* compositeindex: list of _composite index items_
 * documents: initial list of documents for collection
 
 #### index item
 * field: name of collection field to be indexed
+* options: index options. Possible option values are: 
+    - Unique
+    - Sparse
+    - InBackground
+
+#### composite index items
+* fields: list of names of collection fields to be used as a composite index
 * options: index options. Possible option values are: 
     - Unique
     - Sparse

@@ -1,6 +1,12 @@
 package dbconfig
 
-import "github.com/arangodb/go-driver"
+import (
+	"errors"
+	"fmt"
+	"github.com/arangodb/go-driver"
+	"github.com/golang/glog"
+	"strings"
+)
 
 type Index struct {
 	Field        string
@@ -11,9 +17,42 @@ type Index struct {
 	InBackground bool
 }
 
+type CompositeIndex struct {
+	Fields       []string
+	Name         string
+	Username     string
+	Unique       bool
+	Sparse       bool
+	InBackground bool
+}
+
 type Collection struct {
-	Name  string
-	Index []Index
+	Name             string
+	Indexes          []Index
+	CompositeIndexes []CompositeIndex
+}
+
+func (cIdx *CompositeIndex) Create(client driver.Collection) error {
+	exists, err := client.IndexExists(nil, cIdx.Name)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		if len(cIdx.Fields) < 2 {
+			return errors.New("composite index must at least contain two fields")
+		}
+		_, _, err := client.EnsurePersistentIndex(nil, cIdx.Fields, &driver.EnsurePersistentIndexOptions{
+			Unique:       cIdx.Unique,
+			Sparse:       cIdx.Sparse,
+			InBackground: cIdx.InBackground,
+			Name:         cIdx.Username,
+			Estimates:    nil,
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (idx *Index) Create(client driver.Collection) error {
@@ -53,8 +92,16 @@ func (col *Collection) Create(client driver.Database) error {
 			return err
 		}
 	}
-	for _, idx := range col.Index {
+	for _, idx := range col.Indexes {
+		glog.Info(fmt.Sprintf("create index for: %s", idx.Field))
 		err = idx.Create(collection)
+		if err != nil {
+			return err
+		}
+	}
+	for _, cIdx := range col.CompositeIndexes {
+		glog.Info(fmt.Sprintf("create composit index for: %s", strings.Join(cIdx.Fields, ", ")))
+		err = cIdx.Create(collection)
 		if err != nil {
 			return err
 		}

@@ -35,7 +35,11 @@ type DBDef struct {
 		Password string `yaml:",omitempty"`
 	} `yaml:",omitempty"`
 	Collections []struct {
-		Name  string `yaml:",omitempty"`
+		Name           string `yaml:",omitempty"`
+		CompositeIndex []struct {
+			Fields  []string `yaml:",flow"`
+			Options []string `yaml:",omitempty,flow"`
+		}
 		Index []struct {
 			Field   string
 			Options []string `yaml:",omitempty,flow"`
@@ -148,9 +152,19 @@ func iterateDbs(database DBDef, client driver.Client) {
 			idx[i].Sparse = containsIgnoreCase("sparse", v.Options)
 			idx[i].InBackground = containsIgnoreCase("inbackground", v.Options)
 		}
+		cIdx := make([]dbconfig.CompositeIndex, len(col.CompositeIndex))
+		for i, v := range col.CompositeIndex {
+			cIdx[i].Fields = v.Fields
+			cIdx[i].Name = fmt.Sprintf("CIndex_%s", strings.Join(v.Fields, "_"))
+			cIdx[i].Username = fmt.Sprintf("IndexFor-%s", strings.Join(v.Fields, "_"))
+			cIdx[i].Unique = containsIgnoreCase("unique", v.Options)
+			cIdx[i].Sparse = containsIgnoreCase("sparse", v.Options)
+			cIdx[i].InBackground = containsIgnoreCase("inbackground", v.Options)
+		}
 		collection := dbconfig.Collection{
-			Name:  col.Name,
-			Index: idx,
+			Name:             col.Name,
+			Indexes:          idx,
+			CompositeIndexes: cIdx,
 		}
 		err = collection.Create(dbcon)
 		if err != nil {
