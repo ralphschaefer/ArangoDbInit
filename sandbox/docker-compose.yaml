@@ -13,18 +13,18 @@ services:
       environment:
          - ARANGO_ROOT_PASSWORD=root
 
-#    init:
-#      container_name: arangoinit
-#      image: ralphschaefer/arangodb-cloudinit:0.3.0
-#      volumes:
-#        - ./config:/config
-#      environment:
-#        - ARANGODB_ROOTUSER=root
-#        - ARANGODB_ROOTPASS=root
-#        - ARANGODB_ENDPOINT=http://arangodb:8529
-#        - ARANGODB_TIMEOUT=5s
-#        - ARANGODB_RETRY=20
-#      depends_on:
-#        - "arangodb"
+    init:
+      container_name: arangoinit
+      image: ralphschaefer/arangodb-cloudinit:0.4.0
+      volumes:
+        - ./config:/config
+      environment:
+        - ARANGODB_ROOTUSER=root
+        - ARANGODB_ROOTPASS=root
+        - ARANGODB_ENDPOINT=http://arangodb:8529
+        - ARANGODB_TIMEOUT=5s
+        - ARANGODB_RETRY=20
+      depends_on:
+        - "arangodb"
 
 

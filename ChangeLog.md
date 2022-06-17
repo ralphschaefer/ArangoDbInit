@@ -1,3 +1,6 @@
+### 0.4.0
+* allow ttl indexes
+
 ### 0.3.0
 * allow composite indexes
 

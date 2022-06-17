@@ -1,4 +1,4 @@
-version = 0.3.0
+version = 0.4.0
 name = arangoinit
 local_tag = $(name):$(version)
 remote_tag = ralphschaefer/arangodb-cloudinit:$(version)
@@ -17,7 +17,6 @@ build:
 	CGO_ENABLED=0 GOOS=linux go build -o $(name) -ldflags="-s -w" main.go
 
 run:
-	go generate
 	go run main.go
 
 clean:

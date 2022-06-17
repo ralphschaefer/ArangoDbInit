@@ -4,6 +4,16 @@ databases:
       name: "hhhh"
       password: "pass"
     collections:
+      - name: "logs"
+        ttlindex:
+        - field: "createdAt"
+          expiresafter: 600
+          options: []
+        documents:
+          - key: "1"
+            value:  '{"createdAt": "2024-07-10T12:00:00Z", "logLevel": "DEBUG", "mas": "log message"}'
+          - key: "2"
+            value:  '{"createdAt": "2022-06-10T12:00:00Z", "logLevel": "DEBUG", "mas": "log message"}'
       - name: "users"
         compositeindex:
           - fields: ["email", "name"]

@@ -32,6 +32,10 @@ databases:
       password: "pass"
     collections:
       - name: "users"
+        ttlindex:
+        - field: "createdAt"
+          expiresafter: 600
+          options: []        
         compositeindex:
           - fields: ["email", "name"]
             options: ["unique"]        
@@ -40,11 +44,11 @@ databases:
             options: ["sparse"]
         documents:
           - key: "root"
-            value: '{"name": "admin", "email": "admin@admin", "humanReadableName": "Dr. Hans Wurst"}'
+            value: '{"createdAt": "2022-07-10T12:00:00Z", "name": "admin", "email": "admin@admin", "humanReadableName": "Dr. Hans Wurst"}'
           - key: "test"
             value: '{"name": "test", "email": "test@user", "humanReadableName": "Max Mustermann"}'
           - key: "test2"
-            value: '{"name": "test", "email": "test2@user", "humanReadableName": "Max Mustermann"}'
+            value: '{"createdAt": "2024-07-10T12:00:00Z", "name": "test", "email": "test2@user", "humanReadableName": "Max Mustermann"}'
       - name: "dddddd"
         index: []
   - name: "bbbb"
@@ -81,6 +85,14 @@ databases:
 
 #### composite index items
 * fields: list of names of collection fields to be used as a composite index
+* options: index options. Possible option values are: 
+    - Unique
+    - Sparse
+    - InBackground
+
+#### ttl index
+* field: name of collection field to be used as ttl index
+* expiresafter: seconds after witch the document will expire
 * options: index options. Possible option values are: 
     - Unique
     - Sparse
