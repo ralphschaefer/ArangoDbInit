@@ -3,6 +3,7 @@ name = arangoinit
 local_tag = $(name):$(version)
 remote_tag = ralphschaefer/arangodb-cloudinit:$(version)
 
+
 all: build
 
 docker:
