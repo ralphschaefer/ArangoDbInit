@@ -40,6 +40,11 @@ type DBDef struct {
 			Fields  []string `yaml:",flow"`
 			Options []string `yaml:",omitempty,flow"`
 		}
+		TtlIndex []struct {
+			Field        string
+			ExpiresAfter int
+			Options      []string `yaml:",omitempty,flow"`
+		}
 		Index []struct {
 			Field   string
 			Options []string `yaml:",omitempty,flow"`
@@ -161,10 +166,19 @@ func iterateDbs(database DBDef, client driver.Client) {
 			cIdx[i].Sparse = containsIgnoreCase("sparse", v.Options)
 			cIdx[i].InBackground = containsIgnoreCase("inbackground", v.Options)
 		}
+		ttlIdx := make([]dbconfig.TtlIndex, len(col.TtlIndex))
+		for i, v := range col.TtlIndex {
+			ttlIdx[i].Field = v.Field
+			ttlIdx[i].Name = fmt.Sprintf("TtlIndex_%s", v.Field)
+			ttlIdx[i].Username = fmt.Sprintf("IndexFor-%s", v.Field)
+			ttlIdx[i].ExpiresAfter = v.ExpiresAfter
+			ttlIdx[i].InBackground = containsIgnoreCase("inbackground", v.Options)
+		}
 		collection := dbconfig.Collection{
 			Name:             col.Name,
 			Indexes:          idx,
 			CompositeIndexes: cIdx,
+			TtlIndex:         ttlIdx,
 		}
 		err = collection.Create(dbcon)
 		if err != nil {

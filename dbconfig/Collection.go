@@ -17,6 +17,14 @@ type Index struct {
 	InBackground bool
 }
 
+type TtlIndex struct {
+	Field        string
+	Name         string
+	Username     string
+	ExpiresAfter int
+	InBackground bool
+}
+
 type CompositeIndex struct {
 	Fields       []string
 	Name         string
@@ -30,6 +38,25 @@ type Collection struct {
 	Name             string
 	Indexes          []Index
 	CompositeIndexes []CompositeIndex
+	TtlIndex         []TtlIndex
+}
+
+func (ttlIdx *TtlIndex) Create(client driver.Collection) error {
+	exists, err := client.IndexExists(nil, ttlIdx.Name)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		_, _, err := client.EnsureTTLIndex(nil, ttlIdx.Field, ttlIdx.ExpiresAfter, &driver.EnsureTTLIndexOptions{
+			InBackground: ttlIdx.InBackground,
+			Name:         ttlIdx.Username,
+			Estimates:    nil,
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (cIdx *CompositeIndex) Create(client driver.Collection) error {
@@ -102,6 +129,13 @@ func (col *Collection) Create(client driver.Database) error {
 	for _, cIdx := range col.CompositeIndexes {
 		glog.Info(fmt.Sprintf("create composit index for: %s", strings.Join(cIdx.Fields, ", ")))
 		err = cIdx.Create(collection)
+		if err != nil {
+			return err
+		}
+	}
+	for _, ttlIdx := range col.TtlIndex {
+		glog.Info(fmt.Sprintf("create TTL index for: %s", ttlIdx.Field))
+		err = ttlIdx.Create(collection)
 		if err != nil {
 			return err
 		}
